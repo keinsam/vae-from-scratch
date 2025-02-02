@@ -20,18 +20,18 @@ class VAE(nn.Module):
         pass
 
     def forward(self, x):
-        mu, log_var = self.encoder(x)
-        z = self.reparameterize(mu, log_var)
+        mu, sigma = self.encoder(x)
+        z = self.reparameterize(mu, sigma)
         x_recon = self.decoder(z)
-        return x_recon, mu, log_var
+        return x_recon, mu, sigma
 
-    def reparameterize(self, mu, log_var):
-        std = torch.exp(0.5 * log_var)
-        eps = torch.randn_like(std)
-        z = mu + eps * std
+    def reparameterize(self, mu, sigma):
+        #std = torch.exp(0.5 * log_sigma)
+        epsilon = torch.randn_like(sigma)
+        z = mu + epsilon * sigma
         return z
     
-    def elbo_loss(self, recon_x, x, mu, logvar):
+    def elbo_loss(self, recon_x, x, mu, sigma):
         recon_loss = nn.functional.binary_cross_entropy(recon_x, x, reduction='sum')
-        kl_divergence = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        kl_divergence = -0.5 * torch.sum(1 + sigma - mu.pow(2) - sigma.exp())
         return recon_loss + kl_divergence
