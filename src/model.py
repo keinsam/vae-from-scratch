@@ -8,21 +8,28 @@ class VAE(nn.Module):
         # Encoder
         self.input_to_hidden = nn.Linear(input_dim, hidden_dim)
         self.hidden_to_mu = nn.Linear(hidden_dim, latent_dim)
-        self.hidden_to_logvar = nn.Linear(hidden_dim, latent_dim)
+        self.hidden_to_sigma = nn.Linear(hidden_dim, latent_dim)
         # Decoder
         self.latent_to_hidden = nn.Linear(latent_dim, hidden_dim)
         self.hidden_to_output = nn.Linear(hidden_dim, input_dim)
+        # Activation function
+        self.relu = nn.ReLU()
 
-    def encoder(self, x):
-        pass
+    def encode(self, x):
+        h = self.relu(self.input_to_hidden(x))
+        mu = self.hidden_to_mu(h)
+        sigma = self.hidden_to_sigma(h)
+        return mu, sigma
 
-    def decoder(self, z):
-        pass
+    def decode(self, z):
+        h = self.relu(self.latent_to_hidden(z))
+        x_recon = self.hidden_to_output(h)
+        return torch.sigmoid(x_recon)
 
     def forward(self, x):
-        mu, sigma = self.encoder(x)
+        mu, sigma = self.encode(x)
         z = self.reparameterize(mu, sigma)
-        x_recon = self.decoder(z)
+        x_recon = self.decode(z)
         return x_recon, mu, sigma
 
     def reparameterize(self, mu, sigma):
