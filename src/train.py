@@ -6,17 +6,17 @@ from torch.utils.data import DataLoader
 from dataset import get_dataloaders
 from model import VAE
 
-# Load configuration file
-with open("config.yaml", "r") as f:
-    config = yaml.safe_load(f)
+# Load hyperparameters file
+with open("hparams.yaml", "r") as f:
+    hparams = yaml.safe_load(f)
 
 # Load hyperparameters
-INPUT_DIM = config["model"]["input_dim"]
-HIDDEN_DIM = config["model"]["hidden_dim"]
-LATENT_DIM = config["model"]["latent_dim"]
-BATCH_SIZE = config["train"]["batch_size"]
-EPOCHS = config["train"]["epochs"]
-LEARNING_RATE = config["train"]["learning_rate"]
+INPUT_DIM = hparams["model"]["input_dim"]
+HIDDEN_DIM = hparams["model"]["hidden_dim"]
+LATENT_DIM = hparams["model"]["latent_dim"]
+BATCH_SIZE = hparams["train"]["batch_size"]
+EPOCHS = hparams["train"]["epochs"]
+LEARNING_RATE = hparams["train"]["learning_rate"]
 
 # Load dataloaders
 train_loader, test_loader = get_dataloaders(batch_size=BATCH_SIZE)
