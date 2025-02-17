@@ -7,3 +7,9 @@ src/test.py
 # Data Files
 data/
 
+# Logs
+logs/
+
+# Models
+models/
+
