@@ -1,3 +1,6 @@
+tensorboard :
+  log_dir : "vae-v1"
+
 model :
   input_dim : 784
   hidden_dim : 400
@@ -5,5 +8,5 @@ model :
 
 train :
   batch_size : 32
-  epochs : 5
+  epochs : 10
   learning_rate : 0.001

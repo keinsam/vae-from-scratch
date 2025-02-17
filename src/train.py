@@ -1,64 +1,58 @@
 import yaml
-import wandb  # Import W&B
-from tqdm import tqdm
 import torch
+from tqdm import tqdm
 from torch import nn, optim
-from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from dataset import get_dataloaders
 from model import VAE
 
-# Load hyperparameters file
+# Load hyperparameters
 with open("hparams.yaml", "r") as f:
     hparams = yaml.safe_load(f)
 
-# Load hyperparameters
 INPUT_DIM = hparams["model"]["input_dim"]
 HIDDEN_DIM = hparams["model"]["hidden_dim"]
 LATENT_DIM = hparams["model"]["latent_dim"]
 BATCH_SIZE = hparams["train"]["batch_size"]
 EPOCHS = hparams["train"]["epochs"]
 LEARNING_RATE = hparams["train"]["learning_rate"]
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Initialize Weights & Biases (W&B) for logging
-wandb.init(project="vae-training", config=hparams)
+# Initialize TensorBoard writer
+writer = SummaryWriter(log_dir='logs/vae-training')
 
-# Load dataloaders
+# Load data
 train_loader, test_loader = get_dataloaders(batch_size=BATCH_SIZE)
 
-# Initialize model
-model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM)
-
-# Initialize optimizer
+# Initialize model, optimizer, and loss function
+model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).to(DEVICE)
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+loss_function = nn.BCELoss(reduction="sum")
 
-# Loss function
-loss_function = nn.MSELoss()
-
-# Training loop with logging
+# Training loop
 for epoch in range(EPOCHS):
-    model.train()
-    total_loss = 0
-
-    for batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{EPOCHS}"):
+    for i, (x, _) in tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch + 1}/{EPOCHS}"):
+        # Forward pass
+        x = x.to(DEVICE).view(-1, INPUT_DIM)
+        x_recon, mu, sigma = model.forward(x)
+        # Compute loss
+        reconstruction_loss = loss_function(x_recon, x)
+        kl_divergence = - torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.exp())
+        # Backward pass
+        loss = reconstruction_loss + kl_divergence
         optimizer.zero_grad()
-        x, _ = batch  # Assuming (data, labels) from DataLoader
-        x_reconstructed, _, _ = model(x)
-        
-        loss = loss_function(x_reconstructed, x)
         loss.backward()
         optimizer.step()
+        # Log to TensorBoard
+        writer.add_scalar("Loss/reconstruction", reconstruction_loss.item(), epoch * len(train_loader) + i)
+        writer.add_scalar("Loss/kl_divergence", kl_divergence.item(), epoch * len(train_loader) + i)
+        writer.add_scalar("Loss/total", loss.item(), epoch * len(train_loader) + i)
+    print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {loss.item()}")
 
-        total_loss += loss.item()
 
-    avg_loss = total_loss / len(train_loader)
-
-    # Log the loss
-    wandb.log({"epoch": epoch + 1, "train_loss": avg_loss})
-
-    print(f"Epoch {epoch+1}/{EPOCHS}, Loss: {avg_loss:.4f}")
-
-# Save the model and log it in W&B
+# Save model
 model_path = "vae_model.pth"
 torch.save(model.state_dict(), model_path)
-wandb.save(model_path)
-wandb.finish()
+
+# Close TensorBoard writer
+writer.close()
