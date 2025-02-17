@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from dataset import get_dataloaders
 from model import VAE
 
-# Load configuration file
+# Load hyperparameters file
 with open("hparams.yaml", "r") as f:
     hparams = yaml.safe_load(f)
 
