@@ -15,7 +15,7 @@ INPUT_DIM = hparams["model"]["input_dim"]
 HIDDEN_DIM = hparams["model"]["hidden_dim"]
 LATENT_DIM = hparams["model"]["latent_dim"]
 BATCH_SIZE = hparams["train"]["batch_size"]
-EPOCHS = hparams["train"]["epochs"]
+NB_EPOCHS = hparams["train"]["nb_epochs"]
 LEARNING_RATE = hparams["train"]["learning_rate"]
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -38,8 +38,9 @@ model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).t
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 # Training loop
-for epoch in range(EPOCHS):
-    for i, (x, _) in tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch + 1}/{EPOCHS}"):
+for epoch in range(NB_EPOCHS):
+    epoch_loss = 0
+    for i, (x, _) in tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch + 1}/{NB_EPOCHS}"):
         # Forward pass
         x = x.to(DEVICE).view(-1, INPUT_DIM)
         x_recon, mu, sigma = model.forward(x)
@@ -51,12 +52,15 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        epoch_loss += loss.item()
         # Log to TensorBoard
         writer.add_scalar("Loss/reconstruction", reconstruction_loss.item(), epoch * len(train_loader) + i)
         writer.add_scalar("Loss/kl_divergence", kl_divergence.item(), epoch * len(train_loader) + i)
         writer.add_scalar("Loss/total", loss.item(), epoch * len(train_loader) + i)
-    print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {loss.item()}")
-
+    # Compute average loss
+    avg_loss = epoch_loss / len(train_loader)
+    writer.add_scalar("Loss/average", avg_loss, epoch)
+    print(f"Epoch {epoch + 1}/{NB_EPOCHS}, Average Loss: {avg_loss}")
 
 # Save model
 torch.save(model.state_dict(), model_path)
