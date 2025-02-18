@@ -6,8 +6,6 @@ def get_dataloaders(batch_size=64, download=True):
 
     transform = transforms.Compose([
         transforms.ToTensor(),
-        # transforms.Normalize((0.5,), (0.5,)),  # Normalize to [-1, 1]
-        # transforms.Lambda(lambda x: x.view(-1))  # Flatten to (784,)
     ])
 
     train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=download)

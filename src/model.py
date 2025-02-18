@@ -36,8 +36,3 @@ class VAE(nn.Module) :
         epsilon = torch.randn_like(sigma)
         z = mu + epsilon * sigma
         return z
-    
-    def elbo_loss(self, recon_x, x, mu, sigma) :
-        recon_loss = nn.MSELoss(reduction="sum")(recon_x, x)
-        kl_divergence = -0.5 * torch.sum(1 + sigma - mu.pow(2) - sigma.exp())
-        return recon_loss + kl_divergence

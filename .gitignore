@@ -1,15 +1,9 @@
-# Virtual Invironment
-.venv/
-
-# Test File
-src/test.py
-
-# Data Files
+# Data
 data/
 
-# Logs
+# Tensorboard Logs
 logs/
 
-# Models
+# Trained Models
 models/
 
