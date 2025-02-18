@@ -1,3 +1,4 @@
+from pathlib import Path
 import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -16,9 +17,14 @@ LATENT_DIM = hparams["model"]["latent_dim"]
 BATCH_SIZE = hparams["train"]["batch_size"]
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+# Load paths
+model_name = "vae_v0"
+model_dir = Path("models")
+model_path = model_dir.joinpath(f"{model_name}.pth")
+
 # Load the trained model
 model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).to(DEVICE)
-model.load_state_dict(torch.load("vae_model.pth"))
+model.load_state_dict(torch.load(model_path))
 model.eval()
 
 # Load dataloaders

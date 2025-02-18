@@ -20,10 +20,10 @@ LEARNING_RATE = hparams["train"]["learning_rate"]
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load paths
-model_name = "vae_v1"
+model_name = "vae_v0"
 log_dir = Path("logs")
 model_dir = Path("models")
-model_path = model_dir.joinpath(f"{model_name}.pt")
+model_path = model_dir.joinpath(f"{model_name}.pth")
 log_dir.mkdir(parents=True, exist_ok=True)
 model_dir.mkdir(parents=True, exist_ok=True)
 
@@ -45,9 +45,9 @@ for epoch in range(EPOCHS):
         x_recon, mu, sigma = model.forward(x)
         # Compute loss
         reconstruction_loss = nn.BCELoss(reduction="sum")(x_recon, x)
-        kl_divergence = - torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2)) / 2
-        # Backward pass
+        kl_divergence = - torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2))
         loss = reconstruction_loss + kl_divergence
+        # Backward pass
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
