@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # Load hyperparameters
 import yaml
-with open("hparams.yaml", "r") as f:
+with open("configs/hparams.yaml", "r") as f:
     hparams = yaml.safe_load(f)
 
 INPUT_DIM = hparams["model"]["input_dim"]
@@ -18,13 +18,16 @@ BATCH_SIZE = hparams["train"]["batch_size"]
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load paths
-model_name = "vae_v0"
-model_dir = Path("models")
-model_path = model_dir.joinpath(f"{model_name}.pth")
+with open("configs/paths.yaml", "r") as f:
+    paths = yaml.safe_load(f)
+
+MODEL_NAME = Path(paths["model_name"])
+MODEL_DIR = Path(paths["model_dir"])
+MODEL_PATH = MODEL_DIR.joinpath(f"{MODEL_NAME}.pth")
 
 # Load the trained model
 model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).to(DEVICE)
-model.load_state_dict(torch.load(model_path))
+model.load_state_dict(torch.load(MODEL_PATH))
 model.eval()
 
 # Load dataloaders
