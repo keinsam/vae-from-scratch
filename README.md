@@ -11,19 +11,6 @@ This repository contains an implementation of a **Variational Autoencoder (VAE)*
 - Logging with **TensorBoard**.
 - Reconstruction of images for visualization.
 
-## Project Structure
-```
-├── configs/
-│   ├── hparams.yaml       # Hyperparameters configuration
-│   ├── paths.yaml         # Paths for saving models/logs
-│
-├── src/
-    ├── dataset.py         # Data loading utilities
-    ├── infer.py           # Inference script
-    ├── model.py           # VAE model
-    ├── train.py           # Training script
-```
-
 ## Model Architecture
 
 The VAE consists of:
