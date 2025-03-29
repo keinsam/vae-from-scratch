@@ -1,13 +1,11 @@
+import yaml
 from pathlib import Path
 import torch
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
 from model import VAE
-from dataset import get_dataloaders
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # Load hyperparameters
-import yaml
 with open("configs/hparams.yaml", "r") as f:
     hparams = yaml.safe_load(f)
 
@@ -30,22 +28,18 @@ model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).t
 model.load_state_dict(torch.load(MODEL_PATH))
 model.eval()
 
-def generate_images(model, num_images=8):
-    model.eval()
-    with torch.no_grad():
-        # Sample latent vectors from the prior distribution
-        z = torch.randn(num_images, LATENT_DIM).to(DEVICE)  # (batch_size, latent_dim)
-        
-        # Generate images from the decoder
-        generated_images = model.decode(z).view(-1, 28, 28)  # Reshape if working with 28x28 images
-
-        # Plot generated images
-        fig, axes = plt.subplots(1, num_images, figsize=(12, 4))
-        for j in range(num_images):
-            axes[j].imshow(generated_images[j].cpu().numpy(), cmap="gray")
-            axes[j].axis('off')
-        plt.show()
-
 # Generate and visualize images
-generate_images(model, num_images=4)
+with torch.no_grad():
+    # Sample latent vectors from the prior distribution
+    z = torch.randn(10, LATENT_DIM).to(DEVICE)
 
+    # Generate images from the decoder
+    generated_images = model.decode(z).view(-1, 28, 28)
+
+    # Visualize generated images
+    fig = make_subplots(rows=1, cols=10, subplot_titles=[f"Image {i+1}" for i in range(10)])
+    for j in range(10):
+        fig.add_trace(go.Heatmap(z=generated_images[j].cpu().numpy(), colorscale='gray', showscale=False),
+                      row=1, col=j+1)
+    fig.update_layout(height=300, width=1200, title_text="VAE Generated Images")
+    fig.show()

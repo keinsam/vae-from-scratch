@@ -1,7 +1,7 @@
 import yaml
 from pathlib import Path
-import torch
 from tqdm import tqdm
+import torch
 from torch import nn, optim
 from torch.utils.tensorboard import SummaryWriter
 from dataset import get_dataloaders
