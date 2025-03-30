@@ -5,5 +5,5 @@ model :
 
 train :
   batch_size : 128
-  nb_epochs : 10
-  learning_rate : 0.001
+  nb_epochs : 20
+  learning_rate : 0.0001

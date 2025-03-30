@@ -37,7 +37,7 @@ writer.add_hparams({"input_dim": INPUT_DIM, "hidden_dim": HIDDEN_DIM, "latent_di
                     {})
 
 # Load dataloaders
-train_loader, test_loader = get_dataloaders(batch_size=BATCH_SIZE)
+train_loader = get_dataloaders(batch_size=BATCH_SIZE)
 
 # Initialize model and optimizer
 model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).to(DEVICE)
@@ -45,28 +45,32 @@ optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 # Training loop
 for epoch in range(NB_EPOCHS):
-    epoch_loss = 0
-    for i, (x, _) in tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch + 1}/{NB_EPOCHS}"):
-        # Forward pass
+    model.train()
+    epoch_recon, epoch_kl = 0, 0
+    for x, _ in tqdm(train_loader, desc=f"Epoch {epoch+1}/{NB_EPOCHS}"):
         x = x.to(DEVICE).view(-1, INPUT_DIM)
+        # Forward pass
         x_recon, mu, sigma = model.forward(x)
+        sigma = torch.clamp(sigma, min=1e-6)  # Stability
         # Compute loss
-        reconstruction_loss = nn.BCELoss(reduction="sum")(x_recon, x)
-        kl_divergence = - torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2))
+        reconstruction_loss = nn.BCELoss(reduction='sum')(x_recon, x) / BATCH_SIZE
+        kl_divergence = -0.5 * torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2)) / BATCH_SIZE
         loss = reconstruction_loss + kl_divergence
         # Backward pass
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        epoch_loss += loss.item()
-        # Log to TensorBoard
-        writer.add_scalar("Loss/reconstruction", reconstruction_loss.item(), epoch * len(train_loader) + i)
-        writer.add_scalar("Loss/kl_divergence", kl_divergence.item(), epoch * len(train_loader) + i)
-        writer.add_scalar("Loss/total", loss.item(), epoch * len(train_loader) + i)
+        # Logging
+        epoch_recon += reconstruction_loss.item()
+        epoch_kl += kl_divergence.item()
     # Compute average loss
-    avg_loss = epoch_loss / len(train_loader)
-    writer.add_scalar("Loss/average", avg_loss, epoch)
-    print(f"Epoch {epoch + 1}/{NB_EPOCHS}, Average Loss: {avg_loss}")
+    avg_recon = epoch_recon / len(train_loader)
+    avg_kl = epoch_kl / len(train_loader)
+    print(f"Epoch {epoch+1}: Total Loss: {avg_recon + avg_kl:.4f}")
+    # Log to TensorBoard
+    writer.add_scalar('Epoch/Reconstruction', avg_recon, epoch)
+    writer.add_scalar('Epoch/KL_Divergence', avg_kl, epoch)
+    writer.add_scalar('Epoch/Total', avg_recon + avg_kl, epoch)
 
 # Save model
 torch.save(model.state_dict(), MODEL_PATH)
