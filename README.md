@@ -6,17 +6,10 @@ This repository contains an implementation of a **Variational Autoencoder (VAE)*
 
 ## Features
 
-- Implementation of a **fully connected VAE** in PyTorch.
+- Implementation of a **VAE** in PyTorch.
 - Training on the **MNIST dataset**.
-- Logging with **TensorBoard**.
-- Reconstruction of images for visualization.
-
-## Model Architecture
-
-The VAE consists of:
-- An **encoder** that maps input images to a latent space.
-- A **reparameterization trick** to sample from the latent distribution.
-- A **decoder** that reconstructs images from the latent space.
+- Logging with TensorBoard.
+- Generation of images with visualization in Plotly.
 
 ## Usage
 
@@ -26,9 +19,11 @@ To train the VAE, run:
 python train.py
 ```
 This script will:
-- Train the model for the specified number of epochs.
+- Train the model.
 - Save the trained model in `MODEL_DIR`.
 - Log the loss values in TensorBoard.
+
+To see the plotted loss functions, run ```tensorboard --logdir=logs``` in the terminal.
 
 ### Inference
 To visualize reconstructed images from the trained model, run:
@@ -37,7 +32,7 @@ python infer.py
 ```
 This script will:
 - Load the trained model.
-- Display original vs. reconstructed images from the test set.
+- Display generated images.
 
 ## References
 

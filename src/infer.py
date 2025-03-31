@@ -1,9 +1,9 @@
 import yaml
 from pathlib import Path
 import torch
-from model import VAE
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from model import VAE
 
 # Load hyperparameters
 with open("configs/hparams.yaml", "r") as f:
