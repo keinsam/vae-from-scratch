@@ -37,7 +37,7 @@ writer.add_hparams({"input_dim": INPUT_DIM, "hidden_dim": HIDDEN_DIM, "latent_di
                     {})
 
 # Load dataloaders
-train_loader = get_dataloaders(batch_size=BATCH_SIZE)
+train_loader, _ = get_dataloaders(batch_size=BATCH_SIZE)
 
 # Initialize model and optimizer
 model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).to(DEVICE)
