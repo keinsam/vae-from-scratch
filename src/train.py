@@ -43,6 +43,9 @@ train_loader = get_dataloaders(batch_size=BATCH_SIZE)
 model = VAE(input_dim=INPUT_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).to(DEVICE)
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+# Loss function
+criterion = nn.BCELoss(reduction='sum')
+
 # Training loop
 for epoch in range(NB_EPOCHS):
     model.train()
@@ -53,8 +56,8 @@ for epoch in range(NB_EPOCHS):
         x_recon, mu, sigma = model.forward(x)
         sigma = torch.clamp(sigma, min=1e-6)  # Stability
         # Compute loss
-        reconstruction_loss = nn.BCELoss(reduction='sum')(x_recon, x) / BATCH_SIZE
-        kl_divergence = -0.5 * torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2)) / BATCH_SIZE
+        reconstruction_loss = criterion(x_recon, x)
+        kl_divergence = -0.5 * torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2))
         loss = reconstruction_loss + kl_divergence
         # Backward pass
         optimizer.zero_grad()

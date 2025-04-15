@@ -33,7 +33,7 @@ with torch.no_grad():
     # Sample latent vectors from the prior distribution
     z = torch.randn(10, LATENT_DIM).to(DEVICE)
     # Generate images from the decoder
-    generated_images = model.decode(z).view(-1, 28, 28)
+    generated_images = model.decoder(z).view(-1, 28, 28)
     # Visualize generated images
     fig = make_subplots(rows=1, cols=10, subplot_titles=[f"Image {i+1}" for i in range(10)])
     for j in range(10):
