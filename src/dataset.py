@@ -1,17 +1,53 @@
+from pathlib import Path
+from typing import Tuple, Optional, Union
 import torch
+from torch.utils.data import Dataset, Subset
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
 
-def get_dataloaders(batch_size=64, download=True):
 
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-    ])
+class BaseDataset(Dataset):
+    def __init__(self,
+                 data: Dataset,
+                 transform: Optional[transforms.Compose] = None,
+                 subset_size: Optional[int] = None
+                ) -> None:
+        self.data = data
+        self.transform = transform
+        if subset_size is not None:
+            total_size = len(data)
+            assert subset_size <= total_size, f"Subset size {subset_size} exceeds dataset size {total_size}."
+            indices = torch.randperm(total_size)[:subset_size]
+            data = Subset(data, indices)
 
-    train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=download)
-    test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=download)
+    def __len__(self) -> int:
+        return len(self.data)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
+        image, label = self.data[idx]
+        if self.transform:
+            image = self.transform(image)
+        return image, label
 
-    return train_loader, test_loader
+
+class MNIST(BaseDataset):
+    def __init__(self,
+                 root: Union[str, Path],
+                 train: bool,
+                 download: bool,
+                 transform: Optional[transforms.Compose] = None,
+                 subset_size: Optional[int] = None
+                ) -> None:
+        data = datasets.MNIST(root=root, train=train, download=download)
+        super().__init__(data, transform, subset_size)
+
+
+class CIFAR10(BaseDataset):
+    def __init__(self,
+                 root: Union[str, Path],
+                 train: bool,
+                 download: bool,
+                 transform: Optional[transforms.Compose] = None,
+                 subset_size: Optional[int] = None
+                ) -> None:
+        data = datasets.CIFAR10(root=root, train=train, download=download)
+        super().__init__(data, transform, subset_size)
