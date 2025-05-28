@@ -5,5 +5,5 @@ data/
 logs/
 
 # Trained Models
-models/
+weights/
 
