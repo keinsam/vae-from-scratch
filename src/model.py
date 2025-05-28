@@ -4,7 +4,9 @@ from torch import nn
 class Encoder(nn.Module):
     def __init__(self, channel_dim, hidden_dim, latent_dim):
         super().__init__()
+        self.channel_dim = channel_dim
         self.hidden_dim = hidden_dim
+        self.latent_dim = latent_dim
 
         self.block1 = self._block(channel_dim, hidden_dim // 4, stride=2)
         self.block2 = self._block(hidden_dim // 4, hidden_dim // 2, stride=2)
@@ -35,7 +37,9 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, channel_dim, hidden_dim, latent_dim):
         super().__init__()
+        self.channel_dim = channel_dim
         self.hidden_dim = hidden_dim
+        self.latent_dim = latent_dim
 
         self.latent_to_conv = nn.Linear(latent_dim, hidden_dim * 4 * 4)
         self.block1 = self._block(hidden_dim, hidden_dim // 2, stride=2)
@@ -63,6 +67,9 @@ class Decoder(nn.Module):
 class VAE(nn.Module):
     def __init__(self, channel_dim=3, hidden_dim=64, latent_dim=32):
         super().__init__()
+        self.channel_dim = channel_dim
+        self.hidden_dim = hidden_dim
+        self.latent_dim = latent_dim
         self.encoder = Encoder(channel_dim, hidden_dim, latent_dim)
         self.decoder = Decoder(channel_dim, hidden_dim, latent_dim)
     
