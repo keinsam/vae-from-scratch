@@ -1,15 +1,27 @@
 from tqdm import tqdm
+from typing import Optional
 import torch
-from torch import nn
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from torch.optim import Optimizer
+from torch.utils.tensorboard import SummaryWriter
 import torchvision
 
 
-def train_vae(model, dataloader, optimizer, device, nb_epochs, model_path, writer=None):
-    criterion = nn.BCELoss(reduction='sum')
-    model.to(device)
+def train_vae(
+    model: nn.Module,
+    dataloader: DataLoader,
+    optimizer: Optimizer,
+    device: torch.device,
+    nb_epochs: int,
+    model_path: str,
+    writer: Optional[SummaryWriter] = None
+    ) -> None:
 
-    step = 0
+    model.to(device)
     model.train()
+    
+    step = 0
     for epoch in range(nb_epochs):
         epoch_recon, epoch_kl = 0, 0
         loop = tqdm(dataloader, desc=f"Epoch {epoch+1}/{nb_epochs}")
@@ -17,10 +29,11 @@ def train_vae(model, dataloader, optimizer, device, nb_epochs, model_path, write
             x = x.to(device)
 
             # Forward pass
-            x_recon, mu, sigma = model(x)
+            x_hat, mu, sigma = model(x)
             
             # Compute losses
-            reconstruction_loss = criterion(x_recon, x)
+            reconstruction_loss = nn.BCELoss(reduction='sum')(x_hat, x)
+            # reconstruction_loss = nn.MSELoss(reduction='sum')(x_hat, x)
             kl_divergence = -0.5 * torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2))
             loss = reconstruction_loss + kl_divergence
 
