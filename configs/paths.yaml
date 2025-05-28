@@ -1,4 +1,5 @@
 model_name : "vae_v0"
+
 weights_dir : "weights"
 data_dir : "data"
 logs_dir : "logs"

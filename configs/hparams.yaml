@@ -1,13 +1,13 @@
 model :
   channel_dim : 1
-  hidden_dim : 64
+  hidden_dim : 128
   latent_dim : 32
 
 train :
   batch_size : 128
-  nb_epochs : 10
+  nb_epochs : 100
   learning_rate : 0.0003
 
 dataset :
   name : "mnist"
-  subset_size : 10000
+  subset_size : null
