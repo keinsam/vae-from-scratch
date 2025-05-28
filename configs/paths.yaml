@@ -1,3 +1,4 @@
-model_name : "vae_v6"
-model_dir : "models"
-log_dir : "logs"
+model_name : "vae_v0"
+weights_dir : "weights"
+data_dir : "data"
+logs_dir : "logs"
