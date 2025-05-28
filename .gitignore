@@ -7,3 +7,5 @@ logs/
 # Trained Models
 weights/
 
+# Cache
+__pycache__
