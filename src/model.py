@@ -63,9 +63,7 @@ class Decoder(nn.Module):
         self.block2 = self._block(hidden_dim // 2, hidden_dim // 4, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.block3 = self._block(hidden_dim // 4, channel_dim, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.conv_to_output = nn.Sequential(nn.Conv2d(channel_dim, channel_dim, kernel_size=1),
-                                            nn.Sigmoid()
-                                            # nn.Tanh()
-                                            )
+                                            nn.Sigmoid()) # nn.Tanh())
         
     def _block(self,
                in_channels: int,
@@ -97,7 +95,8 @@ class VAE(nn.Module):
     def __init__(self,
                  channel_dim: int = 3,
                  hidden_dim: int = 64,
-                 latent_dim: int = 32):
+                 latent_dim: int = 32
+                 ) -> None:
         super().__init__()
         self.channel_dim = channel_dim
         self.hidden_dim = hidden_dim
