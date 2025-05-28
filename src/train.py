@@ -47,9 +47,9 @@ def train_vae(model, dataloader, optimizer, device, nb_epochs, model_path, write
         
         if writer is not None and (epoch + 1) % 2 == 0:
             with torch.no_grad():
-                z = torch.randn(8, model.latent_dim).to(device)
+                z = torch.randn(32, model.latent_dim).to(device)
                 fixed_samples = model.decoder(z)
-                grid = torchvision.utils.make_grid(fixed_samples, normalize=True)
+                grid = torchvision.utils.make_grid(fixed_samples, nrow=8, normalize=True)
                 writer.add_image("VAE/Samples", grid, global_step=step)
 
 
