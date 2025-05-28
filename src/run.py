@@ -4,11 +4,10 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from torchvision.transforms import Compose, ToTensor, Resize
+from torchvision.transforms import Compose, ToTensor, Resize, Normalize
 from dataset import MNIST, CIFAR10
 from model import VAE
 from train import train_vae
-# from infer import infer_vae
 
 
 # Load paths
@@ -44,20 +43,23 @@ writer.add_hparams(flat_hparams, {})
 transforms = Compose([
     Resize(32),
     ToTensor(),
+    # Normalize([0.5 for _ in range(CHANNEL_DIM)], [0.5 for _ in range(CHANNEL_DIM)]),
 ])
 if DATASET_NAME == "mnist" :
     dataset = MNIST(DATA_DIR, train=True, download=True, transform=transforms, subset_size=SUBSET_SIZE)
 if DATASET_NAME == "cifar10" :
     dataset = CIFAR10(DATA_DIR, train=True, download=True, transform=transforms, subset_size=SUBSET_SIZE)
 
-# Load dataloader
+# Create dataloader
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # Initialize model and optimizer
 model = VAE(channel_dim=CHANNEL_DIM, hidden_dim=HIDDEN_DIM, latent_dim=LATENT_DIM).to(DEVICE)
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-# Training and Inference
+
+
+
 if __name__ == "__main__" :
     train_vae(
         model=model,
@@ -68,9 +70,3 @@ if __name__ == "__main__" :
         model_path=MODEL_PATH,
         writer=writer
     )
-
-    # infer_vae(model=model, 
-    #       device=DEVICE,
-    #       latent_dim=model.latent_dim,
-    #       n_samples=10
-    # )
