@@ -29,7 +29,7 @@ class Encoder(nn.Module):
                padding: int = 0
               ) -> nn.Sequential:
         return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding),
+            nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU()
         )
@@ -74,7 +74,7 @@ class Decoder(nn.Module):
                output_padding: int = 0
                ) -> nn.Sequential:
         return nn.Sequential(
-            nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride, padding, output_padding),
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride, padding, output_padding, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU()
         )
