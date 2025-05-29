@@ -19,7 +19,7 @@ python run.py
 This script will:
 - Train the model.
 - Save the trained model in `WEIGHTS_DIR`.
-- Log the loss values adn generated samples in TensorBoard.
+- Log the loss values and generated samples in TensorBoard.
 
 To see the plotted loss functions and the generated samples, run ```tensorboard --logdir=logs``` in the terminal.
 
