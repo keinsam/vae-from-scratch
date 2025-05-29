@@ -11,13 +11,13 @@ class BaseDataset(Dataset):
                  transform: Optional[transforms.Compose] = None,
                  subset_size: Optional[int] = None
                 ) -> None:
-        self.data = data
-        self.transform = transform
         if subset_size is not None:
             total_size = len(data)
             assert subset_size <= total_size, f"Subset size {subset_size} exceeds dataset size {total_size}."
             indices = torch.randperm(total_size)[:subset_size]
             data = Subset(data, indices)
+        self.data = data
+        self.transform = transform
 
     def __len__(self) -> int:
         return len(self.data)
