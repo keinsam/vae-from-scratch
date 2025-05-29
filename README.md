@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains an implementation of a **Variational Autoencoder (VAE)** using PyTorch, based on the original paper by **Kingma and Welling (2013)**.
+This repository contains an implementation of a **Variational Autoencoder (VAE)** using PyTorch, based on the original paper by **Kingma and Welling (2013)**, with a few modern enhancements.
 
 ## Features
 
